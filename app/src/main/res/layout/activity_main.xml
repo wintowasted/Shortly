@@ -2,94 +2,93 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:orientation="vertical"
-    tools:context=".MainActivity"
     android:weightSum="4"
-    >
+    tools:context=".MainActivity">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:orientation="vertical"
-    android:layout_weight="3"
-    android:gravity="center">
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="18dp"
-        android:src="@drawable/shortly_header" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="14.33dp"
-        android:src="@drawable/logo" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="48dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginRight="48dp"
-        android:fontFamily="@font/poppins"
-        android:text="@string/lets_get_started"
-        android:textAlignment="center"
-        android:textColor="@color/font"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="75dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginRight="75dp"
-        android:fontFamily="@font/poppins"
-        android:text="@string/content"
-        android:textAlignment="center"
-        android:textColor="@color/font"
-        android:textSize="17sp"
-        android:textStyle="normal"/>
-</LinearLayout>
     <LinearLayout
-        android:background="@color/bottom"
-        android:orientation="vertical"
-        android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="0dp">
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="18dp"
+            android:src="@drawable/shortly_header" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="14.33dp"
+            android:src="@drawable/logo" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="48dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="48dp"
+            android:fontFamily="@font/poppins"
+            android:text="@string/lets_get_started"
+            android:textAlignment="center"
+            android:textColor="@color/font"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="75dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginRight="75dp"
+            android:fontFamily="@font/poppins"
+            android:text="@string/content"
+            android:textAlignment="center"
+            android:textColor="@color/font"
+            android:textSize="17sp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/bottom"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_marginRight="48dp"
             android:layout_marginLeft="48dp"
+            android:layout_marginRight="48dp"
+            android:gravity="center"
             android:orientation="vertical">
 
-    <EditText
-        android:background="@drawable/ic_edit_vector"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/hint"
-        android:textColorHint="#BFBFBF"
-        android:textAlignment="center"
-        android:layout_gravity="center_vertical"
-        />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/ic_edit_vector"
+                android:hint="@string/hint"
+                android:textAlignment="center"
+                android:textColorHint="#BFBFBF" />
 
-     <androidx.appcompat.widget.AppCompatButton
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_marginTop="10dp"
-         android:background="@drawable/ic_button_vector"
-         android:text="@string/shorten_it"
-         android:textSize="20sp"
-         android:textStyle="bold"
-         />
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/ic_button_vector"
+                android:text="@string/shorten_it"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </LinearLayout>
