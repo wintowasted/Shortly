@@ -14,6 +14,7 @@ import com.example.shortly.databinding.ActivityMainBinding
 
 
 private lateinit var binding: ActivityMainBinding
+private var flag = 0
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.apply {
             shortenButton.setOnClickListener {
+
+                // if edit text is empty
 
                 if (editLink.getText().toString().equals("")) {
                     editLink.setHint(getString(R.string.empty_edit))
@@ -33,25 +36,29 @@ class MainActivity : AppCompatActivity() {
                         )
                     )
                     editLink.setBackgroundResource(R.drawable.ic_empty_edit)
+                    flag = 1
                 }
 
-
+                // shorten link
 
             }
 
-            editLink.onFocusChangeListener  = View.OnFocusChangeListener { view, hasFocus ->
-                if (hasFocus){
+            editLink.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+                if (hasFocus) {
                     editLink.setHint("")
-                    editLink.setBackgroundResource(R.drawable.ic_edit_vector)
+                    if (flag == 1) {
+                        editLink.setBackgroundResource(R.drawable.ic_edit_vector)
+                        flag = 0
+                    }
                 }
             }
 
             val keyListener = View.OnKeyListener { p0, p1, p2 ->
-                if(p2.action == KeyEvent.ACTION_DOWN && p1 == KeyEvent.KEYCODE_ENTER){
+                if (p2.action == KeyEvent.ACTION_DOWN && p1 == KeyEvent.KEYCODE_ENTER) {
                     hideSoftKeyboard()
                     editLink.clearFocus()
                     true
-                }else{
+                } else {
                     false
                 }
             }
@@ -59,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun Activity.hideSoftKeyboard(){
+    fun Activity.hideSoftKeyboard() {
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
             hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         }
