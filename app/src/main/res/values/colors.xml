@@ -12,4 +12,5 @@
     <color name="button">#2ACFCF</color>
     <color name="background">#E5E5E5</color>
     <color name="edit_link">#F46262</color>
+    <color name="edit_hint">#BFBFBF</color>
 </resources>

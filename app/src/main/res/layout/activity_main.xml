@@ -9,6 +9,30 @@
         android:background="@color/background"
         tools:context=".MainActivity">
 
+        <TextView
+            android:id="@+id/tv_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:fontFamily="@font/poppins"
+            android:text="@string/history_text"
+            android:textColor="#35323E"
+            android:textSize="17sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_shortenedLinks"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/guideline2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_history" />
 
         <ImageView
             android:id="@+id/imageView"
@@ -18,8 +42,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/shortly_header"
-            tools:layout_editor_absoluteX="277dp" />
+            app:srcCompat="@drawable/shortly_header" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -36,12 +59,12 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:fontFamily="@font/poppins"
             android:text="@string/lets_get_started"
             android:textColor="@color/font"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginTop="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView2" />
@@ -83,11 +106,13 @@
             android:layout_marginEnd="48dp"
             android:background="@drawable/ic_edit_vector"
             android:ems="10"
+            android:focusableInTouchMode="true"
             android:hint="@string/hint"
             android:inputType="textPersonName"
             android:textAlignment="center"
             android:textColor="#35323E"
-            android:textColorHint="#A1887F"
+            android:textColorHint="@color/edit_hint"
+            android:textIsSelectable="true"
             app:layout_constraintBottom_toTopOf="@+id/shorten_button"
             app:layout_constraintEnd_toEndOf="@+id/view2"
             app:layout_constraintStart_toStartOf="parent"
