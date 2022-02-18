@@ -6,5 +6,6 @@
     <string name="shorten_it">SHORTEN IT!</string>
     <string name="empty_edit">Please add a link here</string>
     <string name="copy_button">COPY</string>
+    <string name="copied_button">COPIED!</string>
     <string name="history_text">Your Link History</string>
 </resources>

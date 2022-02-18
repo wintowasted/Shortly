@@ -1,19 +1,26 @@
 package com.example.shortly
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.opengl.Visibility
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shortly.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.link_list.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 private lateinit var binding: ActivityMainBinding
@@ -33,6 +40,9 @@ class MainActivity : AppCompatActivity() {
                 resources.getDimension(R.dimen.adapter_margin).toInt()
             )
         )
+
+
+
 
         binding.apply {
             shortenButton.setOnClickListener {
@@ -64,18 +74,34 @@ class MainActivity : AppCompatActivity() {
                     rvShortenedLinks.visibility = View.VISIBLE
                     val longUrl = editLink.text.toString()
                     if (longUrl.isNotEmpty()) {
-                        val link = ShortLink(longUrl)
-                        linkAdapter.addLink(link)
-                        editLink.text.clear()
-                        editLink.setHintTextColor(
-                            ContextCompat.getColor(
-                                this@MainActivity,
-                                R.color.edit_hint
-                            )
-                        )
-                        editLink.hint = getString(R.string.hint)
-                    }
+                        lifecycleScope.launchWhenCreated {
+                            val response = try {
+                                RetrofitInstance.api.getShortenUrl(longUrl)
+                            }catch (e:Exception){
+                                Log.e("Error",e.message.toString())
+                                return@launchWhenCreated
+                            }
 
+                            if(response.isSuccessful && response.body() != null){
+
+                                val link = ShortLink(longUrl, response.body()!!.result.full_short_link)
+
+                                linkAdapter.addLink(link)
+                                editLink.text.clear()
+                                editLink.setHintTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.edit_hint
+                                    )
+                                )
+                                editLink.hint = getString(R.string.hint)
+                            }
+                            else{
+                                Log.e("Error","response error")
+                            }
+                        }
+
+                    }
 
                 }
             }
@@ -90,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            val keyListener = View.OnKeyListener { p0, p1, p2 ->
+            val keyListener = View.OnKeyListener { _, p1, p2 ->
                 if (p2.action == KeyEvent.ACTION_DOWN && p1 == KeyEvent.KEYCODE_ENTER) {
                     hideSoftKeyboard()
                     editLink.clearFocus()
@@ -103,9 +129,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun Activity.hideSoftKeyboard() {
+    private fun Activity.hideSoftKeyboard() {
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
             hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         }
     }
+
+
 }
