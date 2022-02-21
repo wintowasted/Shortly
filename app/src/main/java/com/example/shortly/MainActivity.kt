@@ -1,48 +1,51 @@
 package com.example.shortly
 
 import android.app.Activity
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.opengl.Visibility
-import android.os.AsyncTask
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shortly.databinding.ActivityMainBinding
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.link_list.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+
 
 
 private lateinit var binding: ActivityMainBinding
 private var flag = 0
 private lateinit var linkAdapter: ShortLinkAdapter
+private lateinit var urls: ArrayList<ShortLink>
+private lateinit var helper: HistoryHelper
+private lateinit var loading:LoadingDialog
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loading = LoadingDialog(this)
+        helper = HistoryHelper(this)
+
+        urls = helper.loadHistory()
+
+        Log.i("aasd",urls.toString())
+
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        linkAdapter = ShortLinkAdapter(mutableListOf())
-        rv_shortenedLinks.adapter = linkAdapter
-        rv_shortenedLinks.layoutManager = LinearLayoutManager(this)
-        rv_shortenedLinks.addItemDecoration(
+        linkAdapter = ShortLinkAdapter(urls)
+        binding.rvShortenedLinks.adapter = linkAdapter
+        binding.rvShortenedLinks.layoutManager = LinearLayoutManager(this)
+        binding.rvShortenedLinks.addItemDecoration(
             MarginItemDecoration(
                 resources.getDimension(R.dimen.adapter_margin).toInt()
             )
         )
-
-
-
 
         binding.apply {
             shortenButton.setOnClickListener {
@@ -72,21 +75,42 @@ class MainActivity : AppCompatActivity() {
                     textView2.visibility = View.GONE
                     tvHistory.visibility = View.VISIBLE
                     rvShortenedLinks.visibility = View.VISIBLE
+
                     val longUrl = editLink.text.toString()
+                    var shortenedUrl = ""
+
                     if (longUrl.isNotEmpty()) {
+
+                        loading.startLoading()
+                        /*val handler = Handler()
+                        handler.postDelayed(object: Runnable{
+                            override fun run() {
+                                loading.isDismiss()
+                            }
+
+                        },5000)*/
+
+
                         lifecycleScope.launchWhenCreated {
                             val response = try {
                                 RetrofitInstance.api.getShortenUrl(longUrl)
-                            }catch (e:Exception){
-                                Log.e("Error",e.message.toString())
+                            } catch (e: Exception) {
+                                Log.e("Error", e.message.toString())
                                 return@launchWhenCreated
                             }
 
-                            if(response.isSuccessful && response.body() != null){
+                            if (response.isSuccessful && response.body() != null) {
 
-                                val link = ShortLink(longUrl, response.body()!!.result.full_short_link)
+                                loading.isDismiss()
+                                shortenedUrl = response.body()!!.result.full_short_link
+
+                                val link = ShortLink(longUrl, shortenedUrl)
 
                                 linkAdapter.addLink(link)
+
+
+                                helper.saveHistory(urls)
+
                                 editLink.text.clear()
                                 editLink.setHintTextColor(
                                     ContextCompat.getColor(
@@ -95,24 +119,34 @@ class MainActivity : AppCompatActivity() {
                                     )
                                 )
                                 editLink.hint = getString(R.string.hint)
-                            }
-                            else{
-                                Log.e("Error","response error")
+                            } else {
+                                loading.isDismiss()
+                                editLink.text.clear()
+                                editLink.setHintTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.edit_hint
+                                    )
+                                )
+                                editLink.hint = getString(R.string.hint)
+                                Toast.makeText(this@MainActivity,"Given url is not available",Toast.LENGTH_LONG).show()
                             }
                         }
-
                     }
-
                 }
             }
+
 
             editLink.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
                     editLink.hint = ""
+                    editLink.isCursorVisible = true
                     if (flag == 1) {
                         editLink.setBackgroundResource(R.drawable.ic_edit_vector)
                         flag = 0
                     }
+                } else {
+                    editLink.isCursorVisible = false
                 }
             }
 

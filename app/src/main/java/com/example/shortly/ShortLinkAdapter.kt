@@ -4,7 +4,7 @@ package com.example.shortly
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.provider.Settings.Global.getString
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.link_list.view.*
 
 
+private var selectedPosition:Int = -1
 
 class ShortLinkAdapter(
     private val links: MutableList<ShortLink>
@@ -29,18 +30,25 @@ class ShortLinkAdapter(
         )
     }
 
-    private fun makeCopy(button: Button,isCopied:Boolean){
-
-        if(isCopied){
-            button.setBackgroundResource(R.drawable.ic_copied_button_vector)
-            button.text = "COPIED!"
-        }else{
-            button.setBackgroundResource(R.drawable.ic_button_vector)
-            button.text = "COPY"
-        }
-    }
 
     override fun onBindViewHolder(holder: LinkViewHolder, position: Int) {
+        if(selectedPosition == position){
+            holder.itemView.apply {
+                isSelected = true
+                copy_button.setBackgroundResource(R.drawable.ic_copied_button_vector)
+                copy_button.text = "COPIED!"
+            }
+        }
+        else{
+            holder.itemView.apply {
+                isSelected = false
+                copy_button.setBackgroundResource(R.drawable.ic_button_vector)
+                copy_button.text = "COPY"
+            }
+        }
+
+
+
         val curLink = links[position]
         holder.itemView.apply {
             tv_longLink.text = curLink.long_url
@@ -53,22 +61,21 @@ class ShortLinkAdapter(
 
             copy_button.setOnClickListener {
 
-                makeCopy(copy_button,curLink.is_copied)
+                if (selectedPosition >= 0)
+                    notifyItemChanged(selectedPosition);
+                selectedPosition = position;
+                Log.i("asdasd",holder.adapterPosition.toString())
+                notifyItemChanged(selectedPosition);
 
                 val clipboard = holder.itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val textToCopy = tv_shortenedLink.text
                 val clip: ClipData = ClipData.newPlainText("Copied Url", textToCopy)
                 clipboard.setPrimaryClip(clip)
 
-
-                curLink.is_copied = !curLink.is_copied
             }
 
         }
     }
-
-
-
 
     override fun getItemCount(): Int {
         return links.size
@@ -86,11 +93,10 @@ class ShortLinkAdapter(
         notifyDataSetChanged()
     }
 
-
-
-
-
-
-
+    private fun reloadList(reloadLinks:MutableList<ShortLink>){
+        links.clear()
+        links.addAll(reloadLinks)
+        notifyDataSetChanged()
+    }
 
 }
