@@ -4,8 +4,6 @@ import android.app.Activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -17,13 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shortly.databinding.ActivityMainBinding
 
 
-
 private lateinit var binding: ActivityMainBinding
 private var flag = 0
 private lateinit var linkAdapter: ShortLinkAdapter
 private lateinit var urls: ArrayList<ShortLink>
 private lateinit var helper: HistoryHelper
-private lateinit var loading:LoadingDialog
+private lateinit var loading: LoadingDialog
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,12 +30,10 @@ class MainActivity : AppCompatActivity() {
 
         urls = helper.loadHistory()
 
-        Log.i("aasd",urls.toString())
-
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        linkAdapter = ShortLinkAdapter(urls)
+        linkAdapter = ShortLinkAdapter(this, urls)
         binding.rvShortenedLinks.adapter = linkAdapter
         binding.rvShortenedLinks.layoutManager = LinearLayoutManager(this)
         binding.rvShortenedLinks.addItemDecoration(
@@ -69,12 +64,14 @@ class MainActivity : AppCompatActivity() {
 
                 // shorten link
                 else {
-                    imageView.visibility = View.GONE
-                    imageView2.visibility = View.GONE
-                    textView.visibility = View.GONE
-                    textView2.visibility = View.GONE
+
+                    shortlyHeader.visibility = View.GONE
+                    shortlyImage.visibility = View.GONE
+                    textHeader.visibility = View.GONE
+                    textDescription.visibility = View.GONE
                     tvHistory.visibility = View.VISIBLE
                     rvShortenedLinks.visibility = View.VISIBLE
+
 
                     val longUrl = editLink.text.toString()
                     var shortenedUrl = ""
@@ -82,20 +79,11 @@ class MainActivity : AppCompatActivity() {
                     if (longUrl.isNotEmpty()) {
 
                         loading.startLoading()
-                        /*val handler = Handler()
-                        handler.postDelayed(object: Runnable{
-                            override fun run() {
-                                loading.isDismiss()
-                            }
-
-                        },5000)*/
-
 
                         lifecycleScope.launchWhenCreated {
                             val response = try {
                                 RetrofitInstance.api.getShortenUrl(longUrl)
                             } catch (e: Exception) {
-                                Log.e("Error", e.message.toString())
                                 return@launchWhenCreated
                             }
 
@@ -107,7 +95,6 @@ class MainActivity : AppCompatActivity() {
                                 val link = ShortLink(longUrl, shortenedUrl)
 
                                 linkAdapter.addLink(link)
-
 
                                 helper.saveHistory(urls)
 
@@ -129,13 +116,16 @@ class MainActivity : AppCompatActivity() {
                                     )
                                 )
                                 editLink.hint = getString(R.string.hint)
-                                Toast.makeText(this@MainActivity,"Given url is not available",Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Result is not found",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
                     }
                 }
             }
-
 
             editLink.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
@@ -169,5 +159,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    fun goMainScreen() {
+        binding.apply {
+            shortlyHeader.visibility = View.VISIBLE
+            shortlyImage.visibility = View.VISIBLE
+            textHeader.visibility = View.VISIBLE
+            textDescription.visibility = View.VISIBLE
+            tvHistory.visibility = View.GONE
+            rvShortenedLinks.visibility = View.GONE
+        }
+    }
 }

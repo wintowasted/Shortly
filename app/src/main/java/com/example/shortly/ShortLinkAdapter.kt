@@ -4,23 +4,24 @@ package com.example.shortly
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.link_list.view.*
 
 
-private var selectedPosition:Int = -1
+private var selectedPosition: Int = -1
+private lateinit var helper: HistoryHelper
 
 class ShortLinkAdapter(
+    private val context: Context,
     private val links: MutableList<ShortLink>
 ) : RecyclerView.Adapter<ShortLinkAdapter.LinkViewHolder>() {
     class LinkViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LinkViewHolder {
+        helper = HistoryHelper(parent.context)
         return LinkViewHolder(
             LayoutInflater.from(parent.context).inflate(
                 R.layout.link_list,
@@ -30,23 +31,20 @@ class ShortLinkAdapter(
         )
     }
 
-
     override fun onBindViewHolder(holder: LinkViewHolder, position: Int) {
-        if(selectedPosition == position){
+        if (selectedPosition == position) {
             holder.itemView.apply {
                 isSelected = true
                 copy_button.setBackgroundResource(R.drawable.ic_copied_button_vector)
                 copy_button.text = "COPIED!"
             }
-        }
-        else{
+        } else {
             holder.itemView.apply {
                 isSelected = false
                 copy_button.setBackgroundResource(R.drawable.ic_button_vector)
                 copy_button.text = "COPY"
             }
         }
-
 
 
         val curLink = links[position]
@@ -57,17 +55,21 @@ class ShortLinkAdapter(
             ib_deleteLink.setOnClickListener {
                 curLink.delete_check = true
                 deleteLink()
+                helper.saveHistory(links as ArrayList<ShortLink>)
+                if (links.isEmpty()) {
+                    (context as MainActivity).goMainScreen()
+                }
             }
 
             copy_button.setOnClickListener {
 
                 if (selectedPosition >= 0)
-                    notifyItemChanged(selectedPosition);
-                selectedPosition = position;
-                Log.i("asdasd",holder.adapterPosition.toString())
-                notifyItemChanged(selectedPosition);
+                    notifyItemChanged(selectedPosition)
+                selectedPosition = holder.adapterPosition
+                notifyItemChanged(selectedPosition)
 
-                val clipboard = holder.itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipboard =
+                    holder.itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val textToCopy = tv_shortenedLink.text
                 val clip: ClipData = ClipData.newPlainText("Copied Url", textToCopy)
                 clipboard.setPrimaryClip(clip)
@@ -81,21 +83,15 @@ class ShortLinkAdapter(
         return links.size
     }
 
-    fun addLink(link:ShortLink){
+    fun addLink(link: ShortLink) {
         links.add(link)
         notifyItemInserted(links.size - 1)
     }
 
-    private fun deleteLink(){
+    private fun deleteLink() {
         links.removeAll { link ->
             link.delete_check
         }
-        notifyDataSetChanged()
-    }
-
-    private fun reloadList(reloadLinks:MutableList<ShortLink>){
-        links.clear()
-        links.addAll(reloadLinks)
         notifyDataSetChanged()
     }
 
