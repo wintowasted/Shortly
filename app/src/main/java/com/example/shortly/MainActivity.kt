@@ -42,13 +42,14 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
+        if(urls.isNotEmpty()){
+            goHistoryScreen()
+        }
+
         binding.apply {
             shortenButton.setOnClickListener {
-
                 hideSoftKeyboard()
-
                 // if edit text is empty
-
                 if (editLink.text.toString() == "") {
                     editLink.hint = getString(R.string.empty_edit)
                     editLink.textSize = 17F
@@ -65,29 +66,39 @@ class MainActivity : AppCompatActivity() {
                 // shorten link
                 else {
 
-                    shortlyHeader.visibility = View.GONE
-                    shortlyImage.visibility = View.GONE
-                    textHeader.visibility = View.GONE
-                    textDescription.visibility = View.GONE
-                    tvHistory.visibility = View.VISIBLE
-                    rvShortenedLinks.visibility = View.VISIBLE
-
-
                     val longUrl = editLink.text.toString()
                     var shortenedUrl = ""
 
+                // launch url shortener api
                     if (longUrl.isNotEmpty()) {
 
                         loading.startLoading()
-
                         lifecycleScope.launchWhenCreated {
                             val response = try {
                                 RetrofitInstance.api.getShortenUrl(longUrl)
                             } catch (e: Exception) {
+                                loading.isDismiss()
+                                editLink.text.clear()
+                                editLink.setHintTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.edit_hint
+                                    )
+                                )
+                                editLink.hint = getString(R.string.hint)
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Check your internet connection",
+                                    Toast.LENGTH_LONG
+                                ).show()
                                 return@launchWhenCreated
                             }
 
+                // if successful result received from api
                             if (response.isSuccessful && response.body() != null) {
+
+                                if(urls.isEmpty())
+                                goHistoryScreen()
 
                                 loading.isDismiss()
                                 shortenedUrl = response.body()!!.result.full_short_link
@@ -106,7 +117,11 @@ class MainActivity : AppCompatActivity() {
                                     )
                                 )
                                 editLink.hint = getString(R.string.hint)
-                            } else {
+                            }
+
+                // if result is not found
+
+                            else {
                                 loading.isDismiss()
                                 editLink.text.clear()
                                 editLink.setHintTextColor(
@@ -167,6 +182,19 @@ class MainActivity : AppCompatActivity() {
             textDescription.visibility = View.VISIBLE
             tvHistory.visibility = View.GONE
             rvShortenedLinks.visibility = View.GONE
+            gradientView.visibility = View.GONE
+        }
+    }
+
+    private fun goHistoryScreen(){
+        binding.apply {
+            shortlyHeader.visibility = View.GONE
+            shortlyImage.visibility = View.GONE
+            textHeader.visibility = View.GONE
+            textDescription.visibility = View.GONE
+            tvHistory.visibility = View.VISIBLE
+            rvShortenedLinks.visibility = View.VISIBLE
+            gradientView.visibility = View.VISIBLE
         }
     }
 }

@@ -21,6 +21,7 @@
         android:fontFamily="@font/poppins"
         android:maxLines="1"
         android:textColor="#35323E"
+        android:paddingRight="40dp"
         android:textSize="17sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -34,7 +35,8 @@
         android:background="@drawable/ic_delete_link_vector"
         app:layout_constraintBottom_toBottomOf="@id/tv_longLink"
         app:layout_constraintEnd_toEndOf="@id/tv_longLink"
-        app:layout_constraintTop_toTopOf="@id/tv_longLink" />
+        app:layout_constraintTop_toTopOf="@id/tv_longLink"
+        />
 
     <View
         android:id="@+id/view"
@@ -66,7 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="23dp"
         android:background="@drawable/ic_button_vector"
-        android:fontFamily="@font/poppins"
+        android:fontFamily="@font/poppins_bold"
         android:text="@string/copy_button"
         android:textAlignment="center"
         android:textSize="17sp"

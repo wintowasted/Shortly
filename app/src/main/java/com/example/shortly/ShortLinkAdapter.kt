@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.link_list.view.*
-
+//textinputlayout ve textinputedittext
 
 private var selectedPosition: Int = -1
 private lateinit var helper: HistoryHelper
@@ -32,11 +32,16 @@ class ShortLinkAdapter(
     }
 
     override fun onBindViewHolder(holder: LinkViewHolder, position: Int) {
-        if (selectedPosition == position) {
+
+
+        val curLink = links[position]
+        //selectedPosition == position
+        if (curLink.is_copied) {
             holder.itemView.apply {
                 isSelected = true
                 copy_button.setBackgroundResource(R.drawable.ic_copied_button_vector)
                 copy_button.text = "COPIED!"
+                //curLink.is_copied = false
             }
         } else {
             holder.itemView.apply {
@@ -46,8 +51,6 @@ class ShortLinkAdapter(
             }
         }
 
-
-        val curLink = links[position]
         holder.itemView.apply {
             tv_longLink.text = curLink.long_url
             tv_shortenedLink.text = curLink.short_url
@@ -62,7 +65,7 @@ class ShortLinkAdapter(
             }
 
             copy_button.setOnClickListener {
-
+                curLink.is_copied = true
                 if (selectedPosition >= 0)
                     notifyItemChanged(selectedPosition)
                 selectedPosition = holder.adapterPosition
@@ -73,6 +76,7 @@ class ShortLinkAdapter(
                 val textToCopy = tv_shortenedLink.text
                 val clip: ClipData = ClipData.newPlainText("Copied Url", textToCopy)
                 clipboard.setPrimaryClip(clip)
+
 
             }
 
