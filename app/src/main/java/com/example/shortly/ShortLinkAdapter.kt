@@ -9,13 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.link_list.view.*
-//textinputlayout ve textinputedittext
 
 private var selectedPosition: Int = -1
 private lateinit var helper: HistoryHelper
 
 class ShortLinkAdapter(
-    private val context: Context,
     private val links: MutableList<ShortLink>
 ) : RecyclerView.Adapter<ShortLinkAdapter.LinkViewHolder>() {
     class LinkViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -35,19 +33,18 @@ class ShortLinkAdapter(
 
 
         val curLink = links[position]
-        //selectedPosition == position
         if (curLink.is_copied) {
             holder.itemView.apply {
                 isSelected = true
                 copy_button.setBackgroundResource(R.drawable.ic_copied_button_vector)
-                copy_button.text = "COPIED!"
-                //curLink.is_copied = false
+                copy_button.text = context.getString(R.string.copied_button)
+                curLink.is_copied = false
             }
         } else {
             holder.itemView.apply {
                 isSelected = false
                 copy_button.setBackgroundResource(R.drawable.ic_button_vector)
-                copy_button.text = "COPY"
+                copy_button.text = context.getString(R.string.copy_button)
             }
         }
 
@@ -76,10 +73,7 @@ class ShortLinkAdapter(
                 val textToCopy = tv_shortenedLink.text
                 val clip: ClipData = ClipData.newPlainText("Copied Url", textToCopy)
                 clipboard.setPrimaryClip(clip)
-
-
             }
-
         }
     }
 
@@ -98,5 +92,4 @@ class ShortLinkAdapter(
         }
         notifyDataSetChanged()
     }
-
 }

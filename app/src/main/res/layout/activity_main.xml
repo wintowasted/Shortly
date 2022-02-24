@@ -21,16 +21,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="70dp"
-            android:fontFamily="@font/poppins"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/poppins_medium"
             android:text="@string/history_text"
             android:textColor="#35323E"
             android:textSize="17sp"
             android:visibility="gone"
-            android:layout_marginBottom="10dp"
             app:layout_constraintBottom_toTopOf="@id/topBorder"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_shortenedLinks"
@@ -40,7 +39,7 @@
             app:layout_constraintBottom_toTopOf="@id/view2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_history" >
+            app:layout_constraintTop_toBottomOf="@id/tv_history">
 
         </androidx.recyclerview.widget.RecyclerView>
 
@@ -55,14 +54,14 @@
 
         <ImageView
             android:id="@+id/shortlyImage"
-            app:layout_constraintHeight_percent="0.4"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/ic_shortly_logo"
             android:layout_marginTop="14dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.4"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/shortlyHeader"
+            app:srcCompat="@drawable/ic_shortly_logo"
             tools:layout_editor_absoluteY="154dp" />
 
         <TextView
@@ -73,7 +72,6 @@
             android:fontFamily="@font/poppins_bold"
             android:text="@string/lets_get_started"
             android:textColor="@color/font"
-            android:textFontWeight="700"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +85,7 @@
             android:layout_marginLeft="75dp"
             android:layout_marginTop="7dp"
             android:layout_marginRight="75dp"
-            android:fontFamily="@font/poppins"
+            android:fontFamily="@font/poppins_medium"
             android:text="@string/content"
             android:textAlignment="center"
             android:textColor="#35323E"
@@ -100,12 +98,12 @@
             android:id="@+id/gradientView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintHeight_percent="0.08"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             android:background="@drawable/ic_gradient_view"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@id/view2"/>
+            app:layout_constraintBottom_toTopOf="@id/view2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.08"
+            app:layout_constraintStart_toStartOf="parent" />
 
 
         <View
@@ -123,10 +121,10 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="138dp"
+            android:layout_marginBottom="30dp"
             android:background="@drawable/ic_view_blur"
             app:layout_constraintBottom_toBottomOf="@+id/shorten_button"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="30dp"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/view2" />
@@ -140,6 +138,7 @@
             android:background="@drawable/ic_edit_vector"
             android:ems="10"
             android:focusableInTouchMode="true"
+            android:fontFamily="@font/poppins_medium"
             android:hint="@string/hint"
             android:inputType="textPersonName"
             android:textAlignment="center"
@@ -159,9 +158,9 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="48dp"
             android:background="@drawable/ic_button_vector"
+            android:fontFamily="@font/poppins_bold"
             android:text="@string/shorten_it"
             android:textColor="#FFFFFF"
-            android:fontFamily="@font/poppins_bold"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/view2"

@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shortly.databinding.ActivityMainBinding
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 private lateinit var binding: ActivityMainBinding
@@ -33,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        linkAdapter = ShortLinkAdapter(this, urls)
+        linkAdapter = ShortLinkAdapter(urls)
         binding.rvShortenedLinks.adapter = linkAdapter
         binding.rvShortenedLinks.layoutManager = LinearLayoutManager(this)
         binding.rvShortenedLinks.addItemDecoration(
@@ -42,104 +43,14 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        if(urls.isNotEmpty()){
+        if (urls.isNotEmpty()) {
             goHistoryScreen()
         }
 
         binding.apply {
             shortenButton.setOnClickListener {
                 hideSoftKeyboard()
-                // if edit text is empty
-                if (editLink.text.toString() == "") {
-                    editLink.hint = getString(R.string.empty_edit)
-                    editLink.textSize = 17F
-                    editLink.setHintTextColor(
-                        ContextCompat.getColor(
-                            this@MainActivity,
-                            R.color.edit_link
-                        )
-                    )
-                    editLink.setBackgroundResource(R.drawable.ic_empty_edit)
-                    flag = 1
-                }
-
-                // shorten link
-                else {
-
-                    val longUrl = editLink.text.toString()
-                    var shortenedUrl = ""
-
-                // launch url shortener api
-                    if (longUrl.isNotEmpty()) {
-
-                        loading.startLoading()
-                        lifecycleScope.launchWhenCreated {
-                            val response = try {
-                                RetrofitInstance.api.getShortenUrl(longUrl)
-                            } catch (e: Exception) {
-                                loading.isDismiss()
-                                editLink.text.clear()
-                                editLink.setHintTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.edit_hint
-                                    )
-                                )
-                                editLink.hint = getString(R.string.hint)
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Check your internet connection",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                return@launchWhenCreated
-                            }
-
-                // if successful result received from api
-                            if (response.isSuccessful && response.body() != null) {
-
-                                if(urls.isEmpty())
-                                goHistoryScreen()
-
-                                loading.isDismiss()
-                                shortenedUrl = response.body()!!.result.full_short_link
-
-                                val link = ShortLink(longUrl, shortenedUrl)
-
-                                linkAdapter.addLink(link)
-
-                                helper.saveHistory(urls)
-
-                                editLink.text.clear()
-                                editLink.setHintTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.edit_hint
-                                    )
-                                )
-                                editLink.hint = getString(R.string.hint)
-                            }
-
-                // if result is not found
-
-                            else {
-                                loading.isDismiss()
-                                editLink.text.clear()
-                                editLink.setHintTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.edit_hint
-                                    )
-                                )
-                                editLink.hint = getString(R.string.hint)
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    "Result is not found",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
-                    }
-                }
+                shortenLink()
             }
 
             editLink.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
@@ -158,15 +69,17 @@ class MainActivity : AppCompatActivity() {
             val keyListener = View.OnKeyListener { _, p1, p2 ->
                 if (p2.action == KeyEvent.ACTION_DOWN && p1 == KeyEvent.KEYCODE_ENTER) {
                     hideSoftKeyboard()
-                    editLink.clearFocus()
+                    shortenLink()
                     true
-                } else {
+                }
+                else {
                     false
                 }
             }
             editLink.setOnKeyListener(keyListener)
         }
     }
+
 
     private fun Activity.hideSoftKeyboard() {
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
@@ -186,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun goHistoryScreen(){
+    private fun goHistoryScreen() {
         binding.apply {
             shortlyHeader.visibility = View.GONE
             shortlyImage.visibility = View.GONE
@@ -195,6 +108,105 @@ class MainActivity : AppCompatActivity() {
             tvHistory.visibility = View.VISIBLE
             rvShortenedLinks.visibility = View.VISIBLE
             gradientView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun shortenLink() {
+
+        // if edit text is empty
+
+        binding.apply {
+            if (editLink.text.isEmpty()) {
+                editLink.hint = getString(R.string.empty_edit)
+                editLink.textSize = 17F
+                editLink.setHintTextColor(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.edit_link
+                    )
+                )
+                editLink.setBackgroundResource(R.drawable.ic_empty_edit)
+                flag = 1
+            }
+
+            // shorten link
+            else {
+
+                val longUrl = editLink.text.toString()
+                //var shortenedUrl = ""
+
+                // launch url shortener api
+                if (longUrl.isNotEmpty()) {
+
+                    loading.startLoading()
+                    lifecycleScope.launchWhenCreated {
+                        val response = try {
+                            RetrofitInstance.api.getShortenUrl(longUrl)
+                        } catch (e: Exception) {
+                            loading.isDismiss()
+                            editLink.text.clear()
+                            editLink.setHintTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.edit_hint
+                                )
+                            )
+                            editLink.hint = getString(R.string.hint)
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Check your internet connection",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@launchWhenCreated
+                        }
+
+                        // if successful result received from api
+                        if (response.isSuccessful && response.body() != null) {
+
+                            if (urls.isEmpty())
+                                goHistoryScreen()
+
+                            loading.isDismiss()
+                            val shortenedUrl = response.body()!!.result.full_short_link
+
+                            val link = ShortLink(longUrl, shortenedUrl)
+
+                            linkAdapter.addLink(link)
+
+                            helper.saveHistory(urls)
+
+                            editLink.text.clear()
+                            editLink.setHintTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.edit_hint
+                                )
+                            )
+                            editLink.hint = getString(R.string.hint)
+                        }
+
+                        // if result is not found
+
+                        else {
+                            loading.isDismiss()
+                            editLink.text.clear()
+                            editLink.setHintTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.edit_hint
+                                )
+                            )
+                            editLink.hint = getString(R.string.hint)
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Result is not found",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            }
+            editLink.clearFocus()
         }
     }
 }
