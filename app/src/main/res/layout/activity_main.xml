@@ -162,7 +162,6 @@
             android:text="@string/shorten_it"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
-            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/view2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/view2"

@@ -1,40 +1,51 @@
 package com.example.shortly
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shortly.databinding.ActivityMainBinding
-import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 private lateinit var binding: ActivityMainBinding
 private var flag = 0
 private lateinit var linkAdapter: ShortLinkAdapter
 private lateinit var urls: ArrayList<ShortLink>
+private lateinit var tempUrls: ArrayList<ShortLink>
 private lateinit var helper: HistoryHelper
 private lateinit var loading: LoadingDialog
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         loading = LoadingDialog(this)
         helper = HistoryHelper(this)
 
-        urls = helper.loadHistory()
 
+        tempUrls = ArrayList()
+        getData()
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        linkAdapter = ShortLinkAdapter(urls)
+        linkAdapter = ShortLinkAdapter(tempUrls,this)
         binding.rvShortenedLinks.adapter = linkAdapter
         binding.rvShortenedLinks.layoutManager = LinearLayoutManager(this)
         binding.rvShortenedLinks.addItemDecoration(
@@ -78,6 +89,59 @@ class MainActivity : AppCompatActivity() {
             }
             editLink.setOnKeyListener(keyListener)
         }
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+            menuInflater.inflate(R.menu.main_menu, menu)
+
+            val item = menu?.findItem(R.id.searchView)
+            val search = item?.actionView as SearchView
+            search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    tempUrls.clear()
+                    val searchText = newText!!.lowercase(Locale.getDefault())
+                    if (searchText.isNotEmpty()) {
+
+                        urls.forEach {
+
+                            if (it.long_url!!.lowercase(Locale.getDefault())
+                                    .contains(searchText) && !it.delete_check
+                            ) {
+                                tempUrls.add(it)
+                            }
+                        }
+                        // linkAdapter.changeList(tempUrls)
+                        linkAdapter.notifyDataSetChanged()
+
+                    } else {
+                        tempUrls.clear()
+                        urls.forEach{
+                            if(!it.delete_check){
+                                tempUrls.add(it)
+                            }
+                        }
+                       // linkAdapter.changeList(tempUrls)
+                        linkAdapter.notifyDataSetChanged()
+                    }
+                    return true
+                }
+            })
+            return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.deleteAll ->{
+                linkAdapter.deleteAll()
+            }
+        }
+        return true
     }
 
 
@@ -87,7 +151,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getData(){
+        urls = helper.loadHistory()
+        Log.i("sada",urls.toString())
+        tempUrls.addAll(urls)
+        Log.i("sadasdadaa",tempUrls.toString())
+    }
+
     fun goMainScreen() {
+        hideSoftKeyboard()
         binding.apply {
             shortlyHeader.visibility = View.VISIBLE
             shortlyImage.visibility = View.VISIBLE
@@ -133,7 +205,6 @@ class MainActivity : AppCompatActivity() {
             else {
 
                 val longUrl = editLink.text.toString()
-                //var shortenedUrl = ""
 
                 // launch url shortener api
                 if (longUrl.isNotEmpty()) {
@@ -170,8 +241,10 @@ class MainActivity : AppCompatActivity() {
                             val shortenedUrl = response.body()!!.result.full_short_link
 
                             val link = ShortLink(longUrl, shortenedUrl)
-
-                            linkAdapter.addLink(link)
+                            urls.add(link)
+                            tempUrls.add(link)
+                            linkAdapter.notifyDataSetChanged()
+                            //linkAdapter.addLink(link)
 
                             helper.saveHistory(urls)
 
@@ -208,5 +281,18 @@ class MainActivity : AppCompatActivity() {
             }
             editLink.clearFocus()
         }
+    }
+
+    fun shareUrl(shortUrl:String){
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+        intent.putExtra("Share this",shortUrl)
+        val chooser = Intent.createChooser(intent,"Share using...")
+        startActivity(chooser)
+    }
+
+    fun goToUrl(url:String){
+       val uri = Uri.parse(url)
+       startActivity(Intent(Intent.ACTION_VIEW,uri))
     }
 }
