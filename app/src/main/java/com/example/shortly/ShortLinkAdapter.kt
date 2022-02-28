@@ -4,11 +4,17 @@ package com.example.shortly
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
 import android.widget.Filterable
+import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.shortly.databinding.ActivityMainBinding
+import com.example.shortly.databinding.LinkListBinding
 import kotlinx.android.synthetic.main.link_list.view.*
 
 private var selectedPosition: Int = -1
@@ -17,23 +23,59 @@ private lateinit var helper: HistoryHelper
 class ShortLinkAdapter(
     private var links: MutableList<ShortLink>,
     private var context: Context
-): RecyclerView.Adapter<ShortLinkAdapter.LinkViewHolder>(){
-    class LinkViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+): RecyclerView.Adapter<ShortLinkAdapter.LinkViewHolder>(), Filterable{
+
+    var originalLinks: MutableList<ShortLink>
+
+    init {
+        this.originalLinks = links
+    }
+
+    override fun getFilter(): Filter {
+        return object :Filter(){
+            override fun performFiltering(p0: CharSequence?): FilterResults {
+                val charSearch:String =  p0.toString()
+                if(charSearch.isEmpty()){
+                    links = originalLinks
+                    Log.e("filter",originalLinks.toString())
+                }
+                else{
+                    val resultList = ArrayList<ShortLink>()
+                    for(link in originalLinks){
+                        if(link.long_url!!.lowercase().contains(charSearch.lowercase()))
+                            resultList.add(link)
+                    }
+                    links = resultList
+                    Log.e("filter",links.toString())
+                }
+                val filterResults = Filter.FilterResults()
+                filterResults.values = links
+                return filterResults
+            }
+
+            override fun publishResults(p0: CharSequence?, filterResults: FilterResults?) {
+                links = filterResults!!.values as ArrayList<ShortLink>
+                notifyDataSetChanged()
+            }
+        }
+    }
+
+    class LinkViewHolder(val binding: LinkListBinding) : RecyclerView.ViewHolder(binding.root){
+        fun bind(item: ShortLink){
+            binding.linkItem = item
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LinkViewHolder {
         helper = HistoryHelper(parent.context)
+        val listBinding = LinkListBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return LinkViewHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.link_list,
-                parent,
-                false
+            listBinding
             )
-        )
     }
 
     override fun onBindViewHolder(holder: LinkViewHolder, position: Int) {
-
-
+        holder.bind(links[position])
         val curLink = links[position]
 
         if (curLink.is_copied) {
@@ -51,46 +93,48 @@ class ShortLinkAdapter(
             }
         }
 
-        holder.itemView.apply {
-            tv_longLink.text = curLink.long_url
-            tv_shortenedLink.text = curLink.short_url
+        holder.binding.apply {
+
+            // go to url
+            tvShortenedLink.setOnClickListener {
+                (context as MainActivity).goToUrl(tvShortenedLink.text.toString())
+            }
 
             // delete item
-            iw_deleteLink.setOnClickListener {
+            iwDeleteLink.setOnClickListener {
                 curLink.delete_check = true
                 deleteLink()
-                (context as MainActivity).deleteUrl(curLink)
                 helper.saveHistory(links as ArrayList<ShortLink>)
-                if ((context as MainActivity).isListEmpty()) {
+                if (originalLinks.isEmpty()) {
                     (context as MainActivity).goMainScreen()
                 }
             }
 
-            // copy urls
-            copy_button.setOnClickListener {
+            // copy url
+            copyButton.setOnClickListener {
                 curLink.is_copied = true
                 if (selectedPosition >= 0)
                     notifyItemChanged(selectedPosition)
                 selectedPosition = holder.adapterPosition
                 notifyItemChanged(selectedPosition)
 
-                val clipboard =
-                    holder.itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val textToCopy = tv_shortenedLink.text
+                val clipboard = holder.itemView.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val textToCopy = tvShortenedLink.text.toString()
                 val clip: ClipData = ClipData.newPlainText("Copied Url", textToCopy)
                 clipboard.setPrimaryClip(clip)
             }
 
-            // share url result
-            iw_shareLink.setOnClickListener {
+            // share shortened url
+            iwShareLink.setOnClickListener {
                 (context as MainActivity).shareUrl(curLink.short_url!!)
             }
 
-            // go to shortened url
-            tv_shortenedLink.setOnClickListener {
-                (context as MainActivity).goToUrl(curLink.short_url!!)
-            }
         }
+
+    }
+
+    fun updateList(newList:ArrayList<ShortLink>){
+        links = newList
     }
 
     override fun getItemCount(): Int {
@@ -103,6 +147,9 @@ class ShortLinkAdapter(
     }
 
     private fun deleteLink() {
+        originalLinks.removeAll { link ->
+            link.delete_check
+        }
         links.removeAll { link ->
             link.delete_check
         }
@@ -121,4 +168,6 @@ class ShortLinkAdapter(
         notifyDataSetChanged()
         (context as MainActivity).goMainScreen()
     }
+
+
 }
