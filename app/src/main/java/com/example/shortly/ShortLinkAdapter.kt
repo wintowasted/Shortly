@@ -59,8 +59,9 @@ class ShortLinkAdapter(
             iw_deleteLink.setOnClickListener {
                 curLink.delete_check = true
                 deleteLink()
+                (context as MainActivity).deleteUrl(curLink)
                 helper.saveHistory(links as ArrayList<ShortLink>)
-                if (links.isEmpty()) {
+                if ((context as MainActivity).isListEmpty()) {
                     (context as MainActivity).goMainScreen()
                 }
             }
@@ -115,6 +116,7 @@ class ShortLinkAdapter(
 
     fun deleteAll(){
         links.clear()
+        (context as MainActivity).clearUrls()
         notifyDataSetChanged()
         (context as MainActivity).goMainScreen()
     }

@@ -1,6 +1,8 @@
 package com.example.shortly
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 
@@ -138,13 +140,31 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.deleteAll ->{
-                linkAdapter.deleteAll()
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Are You Sure!")
+                builder.setMessage("Do you want to delete all history?")
+                builder.setPositiveButton("Yes",{ dialogInterface: DialogInterface, i: Int ->
+                    linkAdapter.deleteAll()
+                })
+                builder.setNegativeButton("No",{ dialogInterface: DialogInterface, i: Int ->
+
+                })
+                builder.show()
             }
         }
         return true
     }
 
+    fun isListEmpty():Boolean{
+        return urls.isEmpty()
+    }
+    fun deleteUrl (link:ShortLink){
+        urls.remove(link)
+    }
 
+    fun clearUrls(){
+        urls.clear()
+    }
     private fun Activity.hideSoftKeyboard() {
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
             hideSoftInputFromWindow(currentFocus?.windowToken, 0)
