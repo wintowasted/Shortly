@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         getData()
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setSupportActionBar(binding.toolbar)
 
         linkAdapter = ShortLinkAdapter(tempUrls,this)
         binding.rvShortenedLinks.adapter = linkAdapter
@@ -100,8 +101,11 @@ class MainActivity : AppCompatActivity() {
 
             val item = menu?.findItem(R.id.searchView)
             val search = item?.actionView as SearchView
+
             search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
+                    //search.isIconified = true
+                    //search.onActionViewCollapsed()
                     return true
                 }
 
@@ -129,7 +133,10 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                        // linkAdapter.changeList(tempUrls)
+                        helper.saveHistory(urls)
                         linkAdapter.notifyDataSetChanged()
+                        Log.e("urls",urls.toString())
+                        Log.e("temp_urls", tempUrls.toString())
                     }
                     return true
                 }
@@ -143,12 +150,11 @@ class MainActivity : AppCompatActivity() {
                 val builder = AlertDialog.Builder(this)
                 builder.setTitle("Are You Sure!")
                 builder.setMessage("Do you want to delete all history?")
-                builder.setPositiveButton("Yes",{ dialogInterface: DialogInterface, i: Int ->
+                builder.setPositiveButton("Yes") { _: DialogInterface, _: Int ->
                     linkAdapter.deleteAll()
-                })
-                builder.setNegativeButton("No",{ dialogInterface: DialogInterface, i: Int ->
-
-                })
+                }
+                builder.setNegativeButton("No") { _: DialogInterface, _: Int ->
+                }
                 builder.show()
             }
         }
@@ -173,9 +179,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun getData(){
         urls = helper.loadHistory()
-        Log.i("sada",urls.toString())
         tempUrls.addAll(urls)
-        Log.i("sadasdadaa",tempUrls.toString())
+        Log.e("urls",urls.toString())
+        Log.e("temp_urls", tempUrls.toString())
     }
 
     fun goMainScreen() {
@@ -188,6 +194,7 @@ class MainActivity : AppCompatActivity() {
             tvHistory.visibility = View.GONE
             rvShortenedLinks.visibility = View.GONE
             gradientView.visibility = View.GONE
+            toolbar.visibility = View.GONE
         }
     }
 
@@ -200,6 +207,7 @@ class MainActivity : AppCompatActivity() {
             tvHistory.visibility = View.VISIBLE
             rvShortenedLinks.visibility = View.VISIBLE
             gradientView.visibility = View.VISIBLE
+            toolbar.visibility = View.VISIBLE
         }
     }
 

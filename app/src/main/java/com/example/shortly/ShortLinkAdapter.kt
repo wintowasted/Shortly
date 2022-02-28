@@ -117,6 +117,7 @@ class ShortLinkAdapter(
     fun deleteAll(){
         links.clear()
         (context as MainActivity).clearUrls()
+        helper.saveHistory(links as ArrayList<ShortLink>)
         notifyDataSetChanged()
         (context as MainActivity).goMainScreen()
     }
