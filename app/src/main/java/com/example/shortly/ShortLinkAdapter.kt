@@ -31,34 +31,6 @@ class ShortLinkAdapter(
     }
 
 
-   /* override fun getFilter(): Filter {
-        return object :Filter(){
-            override fun performFiltering(p0: CharSequence?): FilterResults {
-                val charSearch:String =  p0.toString()
-                if(charSearch.isEmpty()){
-                    links = originalLinks
-                    Log.e("filter",originalLinks.toString())
-                }
-                else{
-                    val resultList = ArrayList<ShortLink>()
-                    for(link in originalLinks){
-                        if(link.long_url!!.lowercase().contains(charSearch.lowercase()))
-                            resultList.add(link)
-                    }
-                    links = resultList
-                    Log.e("filter",links.toString())
-                }
-                val filterResults = FilterResults()
-                filterResults.values = links
-                return filterResults
-            }
-
-            override fun publishResults(p0: CharSequence?, filterResults: FilterResults?) {
-                links = filterResults!!.values as ArrayList<ShortLink>
-            }
-        }
-    }*/
-
     override fun getFilter(): Filter {
         return object :Filter(){
             override fun performFiltering(char: CharSequence?): FilterResults {
@@ -123,7 +95,6 @@ class ShortLinkAdapter(
                 isSelected = true
                 copy_button.setBackgroundResource(R.drawable.ic_copied_button_vector)
                 copy_button.text = context.getString(R.string.copied_button)
-                curLink.is_copied = false
             }
         } else {
             holder.itemView.apply {
@@ -152,6 +123,9 @@ class ShortLinkAdapter(
 
             // copy url
             copyButton.setOnClickListener {
+                for (link in links){
+                    link.is_copied = false
+                }
                 curLink.is_copied = true
                 if (selectedPosition >= 0)
                     notifyItemChanged(selectedPosition)

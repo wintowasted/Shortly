@@ -175,6 +175,8 @@ class MainActivity : AppCompatActivity() {
             toolbar.visibility = View.GONE
             appBarLayout.visibility = View.GONE
             collapsingLayout.visibility = View.GONE
+            search!!.setQuery("", false)
+            search!!.isIconified = true;
         }
     }
 
@@ -189,6 +191,7 @@ class MainActivity : AppCompatActivity() {
             toolbar.visibility = View.VISIBLE
             appBarLayout.visibility = View.VISIBLE
             collapsingLayout.visibility = View.VISIBLE
+
         }
     }
 
