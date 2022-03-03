@@ -16,6 +16,7 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
@@ -33,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var flag = 0
     private lateinit var linkAdapter: ShortLinkAdapter
-    private lateinit var urls: ArrayList<ShortLink>
+    private lateinit var urls:ArrayList<ShortLink>
     private lateinit var helper: HistoryHelper
     private lateinit var loading: LoadingDialog
     private var search: SearchView?=null
@@ -45,11 +46,15 @@ class MainActivity : AppCompatActivity() {
         helper = HistoryHelper(this)
 
         urls = helper.loadHistory()
-        Log.e("urls",urls.toString())
+
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setSupportActionBar(binding.toolbar)
+
         linkAdapter = ShortLinkAdapter(urls,this)
+
+        linkAdapter.setData(urls.toMutableList())
+
         binding.rvShortenedLinks.adapter = linkAdapter
         binding.rvShortenedLinks.layoutManager = LinearLayoutManager(this)
         binding.rvShortenedLinks.addItemDecoration(
@@ -104,16 +109,17 @@ class MainActivity : AppCompatActivity() {
             val item = menu?.findItem(R.id.searchView)
             search = item?.actionView as SearchView
             search!!.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+            search!!.imeOptions = EditorInfo.IME_ACTION_DONE
 
             search!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     linkAdapter.filter.filter(query)
-                    return true
+                    return false
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     linkAdapter.filter.filter(newText)
-                    return true
+                    return false
                 }
             })
             return true
@@ -126,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                 builder.setTitle("Are You Sure!")
                 builder.setMessage("Do you want to delete all history?")
                 builder.setPositiveButton("Yes") { _: DialogInterface, _: Int ->
-                    linkAdapter.deleteAll()
+                    clearUrls()
                 }
                 builder.setNegativeButton("No") { _: DialogInterface, _: Int ->
                 }
@@ -146,6 +152,9 @@ class MainActivity : AppCompatActivity() {
 
     fun clearUrls(){
         urls.clear()
+        linkAdapter.setData(urls.toMutableList())
+        helper.saveHistory(urls)
+        goMainScreen()
     }
     private fun Activity.hideSoftKeyboard() {
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
@@ -161,10 +170,11 @@ class MainActivity : AppCompatActivity() {
             shortlyImage.visibility = View.VISIBLE
             textHeader.visibility = View.VISIBLE
             textDescription.visibility = View.VISIBLE
-            tvHistory.visibility = View.GONE
             rvShortenedLinks.visibility = View.GONE
             gradientView.visibility = View.GONE
             toolbar.visibility = View.GONE
+            appBarLayout.visibility = View.GONE
+            collapsingLayout.visibility = View.GONE
         }
     }
 
@@ -174,10 +184,11 @@ class MainActivity : AppCompatActivity() {
             shortlyImage.visibility = View.GONE
             textHeader.visibility = View.GONE
             textDescription.visibility = View.GONE
-            tvHistory.visibility = View.VISIBLE
             rvShortenedLinks.visibility = View.VISIBLE
             gradientView.visibility = View.VISIBLE
             toolbar.visibility = View.VISIBLE
+            appBarLayout.visibility = View.VISIBLE
+            collapsingLayout.visibility = View.VISIBLE
         }
     }
 
@@ -240,10 +251,14 @@ class MainActivity : AppCompatActivity() {
 
                             val link = ShortLink(longUrl, shortenedUrl)
                             urls.add(link)
-                            linkAdapter.notifyDataSetChanged()
+                            Log.e("before",linkAdapter.getLink())
+                            linkAdapter.setData(urls.toMutableList())
+                            Log.e("after",linkAdapter.getLink())
+                            //linkAdapter.notifyDataSetChanged()
                             //linkAdapter.addLink(link)
 
                             helper.saveHistory(urls)
+
 
                             editLink.text.clear()
                             editLink.setHintTextColor(
@@ -292,4 +307,14 @@ class MainActivity : AppCompatActivity() {
        val uri = Uri.parse(url)
        startActivity(Intent(Intent.ACTION_VIEW,uri))
     }
+
+    fun removeUrl(){
+        urls.removeAll { link ->
+            link.delete_check
+        }
+        linkAdapter.setData(urls.toMutableList())
+        helper.saveHistory(urls)
+    }
+
+
 }

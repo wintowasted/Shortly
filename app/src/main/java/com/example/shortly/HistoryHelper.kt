@@ -28,11 +28,7 @@ class HistoryHelper {
             gson.fromJson(historyString, object : TypeToken<ArrayList<ShortLink>>() {
             }.type)
 
-        return if (urlList != null) {
-            urlList
-        } else {
-            ArrayList<ShortLink>()
-        }
+        return urlList
     }
 
 }
