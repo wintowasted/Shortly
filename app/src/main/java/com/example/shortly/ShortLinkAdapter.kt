@@ -25,10 +25,7 @@ class ShortLinkAdapter(
     private var links: ArrayList<ShortLink>,
     private var context: Context
 ): RecyclerView.Adapter<ShortLinkAdapter.LinkViewHolder>(), Filterable{
-    private var originalLinks: ArrayList<ShortLink>
-    init {
-         originalLinks = links
-    }
+    private var originalLinks: ArrayList<ShortLink> = links
 
 
     override fun getFilter(): Filter {
@@ -123,10 +120,16 @@ class ShortLinkAdapter(
 
             // copy url
             copyButton.setOnClickListener {
+
                 for (link in links){
                     link.is_copied = false
                 }
+                for (link in originalLinks){
+                    link.is_copied = false
+                }
+
                 curLink.is_copied = true
+
                 if (selectedPosition >= 0)
                     notifyItemChanged(selectedPosition)
                 selectedPosition = holder.adapterPosition
@@ -146,38 +149,16 @@ class ShortLinkAdapter(
         }
     }
 
-
-
     fun setData(newList: MutableList<ShortLink>){
         val oldList = links
         val diffUtil = DiffUtilHelper(oldList,newList)
         val diffResults = DiffUtil.calculateDiff(diffUtil)
         links = newList as ArrayList<ShortLink>
         diffResults.dispatchUpdatesTo(this)
-        Log.e("links",links.toString())
     }
 
     override fun getItemCount(): Int {
         return links.size
     }
 
-    fun setFullList(){
-        originalLinks = links
-    }
-    private fun deleteLink() {
-        originalLinks.removeAll { link ->
-            link.delete_check
-        }
-        links.removeAll { link ->
-            link.delete_check
-        }
-    }
-
-    fun deleteAll(){
-        links.clear()
-        (context as MainActivity).clearUrls()
-        helper.saveHistory(links as ArrayList<ShortLink>)
-        setData(links.toMutableList())
-        (context as MainActivity).goMainScreen()
-    }
 }

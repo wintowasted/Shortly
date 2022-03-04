@@ -35,10 +35,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var flag = 0
     private lateinit var linkAdapter: ShortLinkAdapter
-    private lateinit var urls:ArrayList<ShortLink>
+    private lateinit var urls: ArrayList<ShortLink>
     private lateinit var helper: HistoryHelper
     private lateinit var loading: LoadingDialog
-    private var search: SearchView?=null
+    private var search: SearchView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setSupportActionBar(binding.toolbar)
 
-        linkAdapter = ShortLinkAdapter(urls,this)
+        linkAdapter = ShortLinkAdapter(urls, this)
 
         linkAdapter.setData(urls.toMutableList())
 
@@ -92,8 +92,7 @@ class MainActivity : AppCompatActivity() {
                     hideSoftKeyboard()
                     shortenLink()
                     true
-                }
-                else {
+                } else {
                     false
                 }
             }
@@ -104,31 +103,31 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
-            menuInflater.inflate(R.menu.main_menu, menu)
+        menuInflater.inflate(R.menu.main_menu, menu)
 
-            val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-            val item = menu?.findItem(R.id.searchView)
-            search = item?.actionView as SearchView
-            search!!.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-            search!!.imeOptions = EditorInfo.IME_ACTION_DONE
+        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val item = menu?.findItem(R.id.searchView)
+        search = item?.actionView as SearchView
+        search!!.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        search!!.imeOptions = EditorInfo.IME_ACTION_DONE
 
-            search!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    linkAdapter.filter.filter(query)
-                    return false
-                }
+        search!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                linkAdapter.filter.filter(query)
+                return false
+            }
 
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    linkAdapter.filter.filter(newText)
-                    return false
-                }
-            })
-            return true
+            override fun onQueryTextChange(newText: String?): Boolean {
+                linkAdapter.filter.filter(newText)
+                return false
+            }
+        })
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.deleteAll ->{
+        when (item.itemId) {
+            R.id.deleteAll -> {
                 val builder = AlertDialog.Builder(this)
                 builder.setTitle("Are You Sure!")
                 builder.setMessage("Do you want to delete all history?")
@@ -144,7 +143,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if(!search!!.isIconified){
+        if (!search!!.isIconified) {
             search!!.isIconified = true
             return
         }
@@ -258,9 +257,9 @@ class MainActivity : AppCompatActivity() {
 
                             val link = ShortLink(longUrl, shortenedUrl)
                             urls.add(link)
-                            Log.e("before",linkAdapter.getLink())
+                            Log.e("before", linkAdapter.getLink())
                             linkAdapter.setData(urls.toMutableList())
-                            Log.e("after",linkAdapter.getLink())
+                            Log.e("after", linkAdapter.getLink())
                             //linkAdapter.notifyDataSetChanged()
                             //linkAdapter.addLink(link)
 
@@ -302,20 +301,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun shareUrl(shortUrl:String){
+    fun shareUrl(shortUrl: String) {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "text/plain"
-        intent.putExtra(EXTRA_TEXT,shortUrl)
-        val chooser = Intent.createChooser(intent,"Share using...")
+        intent.putExtra(EXTRA_TEXT, shortUrl)
+        val chooser = Intent.createChooser(intent, "Share using...")
         startActivity(chooser)
     }
 
-    fun goToUrl(url:String){
-       val uri = Uri.parse(url)
-       startActivity(Intent(Intent.ACTION_VIEW,uri))
+    fun goToUrl(url: String) {
+        val uri = Uri.parse(url)
+        startActivity(Intent(Intent.ACTION_VIEW, uri))
     }
 
-    fun removeUrl(){
+    fun removeUrl() {
         urls.removeAll { link ->
             link.delete_check
         }
@@ -323,23 +322,20 @@ class MainActivity : AppCompatActivity() {
         helper.saveHistory(urls)
     }
 
-    fun clearUrls(){
+    fun clearUrls() {
         urls.clear()
         linkAdapter.setData(urls.toMutableList())
         helper.saveHistory(urls)
         goMainScreen()
     }
 
-
-
-    private fun setCollapsingToolbar(flag:Boolean){
+    private fun setCollapsingToolbar(flag: Boolean) {
 
         val params = binding.nestedView.layoutParams as CoordinatorLayout.LayoutParams
-        if(!flag) {
+        if (!flag) {
             params.behavior = null
             binding.constraint.requestLayout()
-        }
-        else
+        } else
             params.behavior = AppBarLayout.ScrollingViewBehavior()
     }
 
