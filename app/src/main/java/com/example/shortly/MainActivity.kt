@@ -1,5 +1,6 @@
 package com.example.shortly
 
+
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.SearchManager
@@ -8,8 +9,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.EXTRA_TEXT
 import android.net.Uri
-
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -19,14 +18,16 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.shortly.databinding.ActivityMainBinding
+import com.google.android.material.appbar.AppBarLayout
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -150,12 +151,7 @@ class MainActivity : AppCompatActivity() {
         super.onBackPressed()
     }
 
-    fun clearUrls(){
-        urls.clear()
-        linkAdapter.setData(urls.toMutableList())
-        helper.saveHistory(urls)
-        goMainScreen()
-    }
+
     private fun Activity.hideSoftKeyboard() {
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
             hideSoftInputFromWindow(currentFocus?.windowToken, 0)
@@ -165,7 +161,12 @@ class MainActivity : AppCompatActivity() {
 
     fun goMainScreen() {
         hideSoftKeyboard()
+
+        setCollapsingToolbar(false)
+
         binding.apply {
+
+            appBarLayout.setExpanded(false)
             shortlyHeader.visibility = View.VISIBLE
             shortlyImage.visibility = View.VISIBLE
             textHeader.visibility = View.VISIBLE
@@ -181,7 +182,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goHistoryScreen() {
+
+        setCollapsingToolbar(true)
+
         binding.apply {
+            appBarLayout.setExpanded(true)
             shortlyHeader.visibility = View.GONE
             shortlyImage.visibility = View.GONE
             textHeader.visibility = View.GONE
@@ -191,7 +196,6 @@ class MainActivity : AppCompatActivity() {
             toolbar.visibility = View.VISIBLE
             appBarLayout.visibility = View.VISIBLE
             collapsingLayout.visibility = View.VISIBLE
-
         }
     }
 
@@ -319,5 +323,24 @@ class MainActivity : AppCompatActivity() {
         helper.saveHistory(urls)
     }
 
+    fun clearUrls(){
+        urls.clear()
+        linkAdapter.setData(urls.toMutableList())
+        helper.saveHistory(urls)
+        goMainScreen()
+    }
+
+
+
+    private fun setCollapsingToolbar(flag:Boolean){
+
+        val params = binding.nestedView.layoutParams as CoordinatorLayout.LayoutParams
+        if(!flag) {
+            params.behavior = null
+            binding.constraint.requestLayout()
+        }
+        else
+            params.behavior = AppBarLayout.ScrollingViewBehavior()
+    }
 
 }
